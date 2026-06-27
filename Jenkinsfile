@@ -3,6 +3,9 @@ pipeline {
     tools {
         nodejs 'Node26'
     }
+    environment {
+        DOCKER_IMAGE = 'aitasam098/aitasam-cicd-project'
+    }
     stages {
         stage('Checkout') {
             steps {
@@ -23,6 +26,12 @@ pipeline {
         }
         stage('Deploy') {
             steps {
+                echo 'Deploying...'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
+                    sh 'docker build -t aitasam098/aitasam-cicd-project .'
+                    sh 'docker push aitasam098/aitasam-cicd-project'
+                }
                 echo 'Deployed!'
             }
         }
